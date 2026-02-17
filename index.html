@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Creamchat.net - A simple chatting system!</title>
+    <style>
+          /* Container for the chat */
+.chillzone-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #050505;
+    border: 2px solid #00f2ff;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+}
+
+/* Chat display area */
+.chat-log {
+    height: 350px;
+    overflow-y: auto;
+    background: #000;
+    border: 1px solid #333;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-family: 'Courier New', monospace;
+    color: #00f2ff;
+}
+
+/* Individual message styling */
+.msg-system { color: #ff00ff; font-style: italic; margin-bottom: 5px; }
+.msg-user { color: #fff; margin-bottom: 5px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+
+.chat-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-small { width: 80px; text-align: center; }
+.chat-input-main { flex-grow: 1; }
+
+input {
+    background: #111;
+    border: 1px solid #00f2ff;
+    color: #fff;
+    padding: 10px;
+    outline: none;
+}
+
+.chat-send-btn {
+    background: #00f2ff;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.chat-send-btn:hover {
+    background: #fff;
+    box-shadow: 0 0 10px #fff;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Creamchat</h1>
+    <div class="chillzone-container">
+      <h2>Chillzone Chat</h2>
+          <div id="chillzoneChatLog" class="chat-log">
+            <div class="msg-system">{<strong>System: </strong>Welcome to the Chillzone Chat!}</div>
+          </div>
+          
+          <div class="chat-controls">
+              <input type="text" id="chillzoneNameInput" placeholder="username..." class="chat-input-small" style="
+                                                                                                                   font-family: Courier New;
+                                                                                                                   width: 120px;                                                                         ">
+              <input type="text" id="chillzoneMessageInput" placeholder="Enter message..." class="chat-input-main" style="
+                                                 font-family: Courier New;                                                                         ">
+              <button onclick="sendChillzoneMessage()" class="chat-send-btn">SEND</button>
+        </div>
+    </div>
+    <script>
+       function sendChillzoneMessage() {
+    // Get elements
+    const nameEl = document.getElementById('chillzoneNameInput');
+    const msgEl = document.getElementById('chillzoneMessageInput');
+    const logEl = document.getElementById('chillzoneChatLog');
+
+    // Get values
+    const name = nameEl.value.trim() || "GUEST_" + Math.floor(Math.random()*999);
+    const message = msgEl.value.trim();
+
+    if (message !== "") {
+        // Create the message element
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'msg-user';
+        msgDiv.innerHTML = `> <strong>${name}:</strong> ${message}`;
+        
+        // Append to log
+        logEl.appendChild(msgDiv);
+        
+        // Save to localStorage
+        let messages = JSON.parse(localStorage.getItem('chillzoneMessages') || '[]');
+        messages.push({
+            name: name,
+            message: message,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('chillzoneMessages', JSON.stringify(messages));
+        
+        // Auto-scroll to bottom
+        logEl.scrollTop = logEl.scrollHeight;
+        
+        // Clear message box
+        msgEl.value = "";
+    }
+}
+
+// Load messages from localStorage on page load
+function loadSavedMessages() {
+    const logEl = document.getElementById('chillzoneChatLog');
+    const savedMessages = JSON.parse(localStorage.getItem('chillzoneMessages') || '[]');
+    
+    savedMessages.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'msg-user';
+        msgDiv.innerHTML = `> <strong>${msg.name}:</strong> ${msg.message}`;
+        logEl.appendChild(msgDiv);
+    });
+    
+    // Auto-scroll to bottom
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Call loadSavedMessages when page loads
+window.addEventListener('load', loadSavedMessages);
+    const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('chillzone_message', (messageData) => {
+    // Broadcast the message to all connected clients
+    io.emit('receive_chillzone_message', messageData);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+    </script>
+  </body>
+</html>
